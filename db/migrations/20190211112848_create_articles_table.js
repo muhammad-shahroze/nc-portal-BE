@@ -5,9 +5,9 @@ exports.up = function (connection, Promise) {
     articlesTable.string('title');
     articlesTable.text('body').notNullable();
     articlesTable.string('votes').defaultsTo(0);
-    articlesTable.string('slug').references('slug').inTable('topics');
+    articlesTable.string('topic').references('slug').inTable('topics');
     articlesTable.string('author').references('username').inTable('users');
-    articlesTable.datetime('created_at', 6).defaultTo(connection.fn.now(6));
+    articlesTable.datetime('created_at').defaultTo(connection.fn.now());
   });
 };
 

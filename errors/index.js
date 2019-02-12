@@ -30,3 +30,9 @@ exports.handle422 = (err, req, res, next) => {
     res.status(422).send({ message: errorCodes422[code] });
   } else next(err);
 };
+
+exports.handle500 = (err, req, res, next) => {
+  if (err) {
+    res.status(500).send({ message: 'Oops Bad Request' });
+  } else next(err);
+};

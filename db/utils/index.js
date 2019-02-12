@@ -1,18 +1,11 @@
-exports.formatArticles = (articles, topics) => {
-  const formattedArticles = articles.map((article) => {
-    const dateTimeString = new Date(article.created_at);
-    const topicKey = topics.find(topic => topic.slug === article.topic);
-    console.log(topicKey);
-    // console.log(topicKey.slug);
+exports.formatArticles = (articles) => {
+  const formattedArticles = articles.map(({ created_at, ...remainingArticle }) => {
+    const dateTimeString = new Date(created_at);
     const newArticle = {
-      ...article, topic: topicKey.slug, author: article.created_by, created_at: dateTimeString,
+      ...remainingArticle, created_at: dateTimeString,
     };
-    delete newArticle.topic;
-    delete newArticle.created_by;
-    // console.log(newArticle);
     return newArticle;
   });
-  // console.log(formattedArticles);
   return formattedArticles;
 };
 

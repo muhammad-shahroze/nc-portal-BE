@@ -1,10 +1,22 @@
 ;
 \c nc_knews_test;
 
-SELECT username AS author, title, article_id, slug AS topic, created_at, votes
-FROM articles;
-  -- JOIN comments ON articles.article_id = comments.article_id
--- WHERE article_id = 2;
+SELECT *
+FROM articles
+LIMIT
+6
+OFFSET 6;
+
+
+-- SELECT articles.article_id, title, articles.topic, articles.author, articles.votes, articles.body, articles.created_at, COUNT(comments.article_id) AS comment_count
+-- FROM articles
+--   LEFT JOIN comments ON articles.article_id = comments.article_id
+-- GROUP BY articles.article_id;
+-- WHERE articles.article_id = 1;
+
+-- SELECT *
+-- FROM articles
+-- WHERE author = 'icellusedkars';
 
 
   -- .select('parties.party', 'parties.founded')
