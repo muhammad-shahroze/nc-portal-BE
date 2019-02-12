@@ -43,8 +43,11 @@ exports.getTotalArticles = (author, topic, sort_by = 'created_at', order = 'desc
 
 exports.getArticleById = (article_id) => {
   const basePromise = connection
-    .select('*')
-    .from('articles');
+    .select('articles.*')
+    .from('articles')
+    .count('comments.article_id AS comment_count')
+    .leftJoin('comments', 'articles.article_id', 'comments.article_id')
+    .groupBy('articles.article_id');
 
   if (article_id) {
     return basePromise.where('articles.article_id', article_id);
