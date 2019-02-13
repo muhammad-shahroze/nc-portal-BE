@@ -1,5 +1,6 @@
 const {
-  getArticle, getTotalArticles, getArticleById, addArticle,
+  getArticles, getArticleById, addArticle, patchArticleById,
+  deleteArticleById, getTotalArticlesCount,
 } = require('../models/articles');
 
 exports.fetchArticles = (req, res, next) => {
@@ -7,11 +8,13 @@ exports.fetchArticles = (req, res, next) => {
   const {
     author, topic, sort_by, order, limit, page,
   } = req.query;
-  getArticle(author, topic, sort_by, order, limit, page)
-    .then((articles) => {
-      const total_count = articles.length;
+  Promise.all([
+    getArticles(author, topic, sort_by, order, limit, page),
+    getTotalArticlesCount()])
+    .then(([articles, [{ total_count }]]) => {
+      // console.log(total_count);
       res.status(200).send({
-        articles, author, topic, sort_by, order, limit, page, total_count,
+        articles, total_count,
       });
     })
     .catch((err) => {
@@ -19,17 +22,10 @@ exports.fetchArticles = (req, res, next) => {
     });
 };
 
-exports.fetchTotalArticles = (req, res, next) => {
-  const {
-    author, topic, sort_by, order,
-  } = req.query;
-  getTotalArticles(author, topic, sort_by, order)
-    .then((articles) => {
-      const total_count = articles.length;
-      res.status(200).send({
-        articles, author, topic, sort_by, order, total_count,
-      });
-    })
+exports.postArticle = (req, res, next) => {
+  // console.log(req.body);
+  addArticle(req.body)
+    .then(([article]) => res.status(201).send({ article }))
     .catch((err) => {
       next(err);
     });
@@ -39,6 +35,7 @@ exports.fetchArticleById = (req, res, next) => {
   const { article_id } = req.params;
   getArticleById(article_id)
     .then(([article]) => {
+      // next({msg: 'ID not found', code: 404})
       res.status(200).send({ article });
     })
     .catch((err) => {
@@ -46,11 +43,24 @@ exports.fetchArticleById = (req, res, next) => {
     });
 };
 
+exports.patchArticle = (req, res, next) => {
+  const { article_id } = req.params;
+  const { inc_votes } = req.body;
+  patchArticleById(article_id, inc_votes)
+    .then(([article]) => {
+      res.status(200).send({ article });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
 
-exports.postArticle = (req, res, next) => {
-  // console.log(req.body);
-  addArticle(req.body)
-    .then(([article]) => res.status(201).send({ article }))
+exports.deleteArticle = (req, res, next) => {
+  const { article_id } = req.params;
+  deleteArticleById(article_id)
+    .then((mystery) => {
+      res.status(204).send({ mystery });
+    })
     .catch((err) => {
       next(err);
     });

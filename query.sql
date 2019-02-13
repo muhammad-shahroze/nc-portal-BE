@@ -1,18 +1,31 @@
+
 ;
 \c nc_knews_test;
 
-SELECT *
-FROM articles
-LIMIT
-6
-OFFSET 6;
+-- UPDATE articles
+-- SET votes = 100
 
+-- SELECT comments.comment_id, comments.votes, comments.created_at, comments.author, comments.body
+-- FROM comments
+--   LEFT JOIN articles ON comments.article_id = articles.article_id
+-- WHERE articles.article_id = 1;
+
+SELECT *
+FROM users;
+
+-- UPDATE articles
+--   SET votes = votes + 1
+--   WHERE article_id = 5
+-- RETURNING *;
+
+-- DELETE FROM articles
+-- WHERE article_id = 8
+-- RETURNING *;
 
 -- SELECT articles.article_id, title, articles.topic, articles.author, articles.votes, articles.body, articles.created_at, COUNT(comments.article_id) AS comment_count
 -- FROM articles
 --   LEFT JOIN comments ON articles.article_id = comments.article_id
 -- GROUP BY articles.article_id;
--- WHERE articles.article_id = 1;
 
 -- SELECT *
 -- FROM articles

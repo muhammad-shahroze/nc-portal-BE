@@ -4,8 +4,8 @@ exports.up = function (connection, Promise) {
     commentsTable.increments('comment_id').primary();
     commentsTable.string('author').references('username').inTable('users');
     commentsTable.integer('article_id').references('article_id').inTable('articles');
-    commentsTable.string('votes').defaultsTo(0);
-    commentsTable.datetime('created_at', 50).defaultTo(connection.fn.now(50));
+    commentsTable.integer('votes').defaultsTo(0);
+    commentsTable.datetime('created_at').defaultTo(connection.fn.now());
     commentsTable.string('body', 2500).notNullable();
   });
 };

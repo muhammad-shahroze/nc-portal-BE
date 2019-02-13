@@ -4,7 +4,7 @@ exports.up = function (connection, Promise) {
     articlesTable.increments('article_id').primary();
     articlesTable.string('title');
     articlesTable.text('body').notNullable();
-    articlesTable.string('votes').defaultsTo(0);
+    articlesTable.integer('votes').defaultsTo(0);
     articlesTable.string('topic').references('slug').inTable('topics');
     articlesTable.string('author').references('username').inTable('users');
     articlesTable.datetime('created_at').defaultTo(connection.fn.now());

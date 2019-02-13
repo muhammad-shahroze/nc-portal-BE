@@ -11,10 +11,10 @@
     "posttest": "npm run lint",
     "setup:dbs": "psql -f db/setup.sql",
     "migrate:make": "knex migrate:make",
-    "migrate-latest": "knex migrate:latest",
-    "migrate-rollback": "knex migrate:rollback",
+    "migrate-latest": "NODE_ENV=test knex migrate:latest",
+    "migrate-rollback": "NODE_ENV=test knex migrate:rollback",
     "create:seed": "knex seed:make seed",
-    "seed:db": "psql -f db/setup.sql && knex seed:run",
+    "seed:db": "NODE_ENV=test knex seed:run",
     "dev": "nodemon listen.js"
   },
   "repository": {
