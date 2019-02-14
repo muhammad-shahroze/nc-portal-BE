@@ -3,7 +3,7 @@ exports.up = function (connection, Promise) {
   return connection.schema.createTable('comments', (commentsTable) => {
     commentsTable.increments('comment_id').primary();
     commentsTable.string('author').references('username').inTable('users');
-    commentsTable.integer('article_id').references('article_id').inTable('articles');
+    commentsTable.integer('article_id').references('article_id').inTable('articles').onDelete('CASCADE');
     commentsTable.integer('votes').defaultsTo(0);
     commentsTable.datetime('created_at').defaultTo(connection.fn.now());
     commentsTable.string('body', 2500).notNullable();

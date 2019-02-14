@@ -12,7 +12,7 @@ describe('/api', () => {
 
   after(() => connection.destroy());
 
-  describe('topics', () => {
+  describe.only('topics', () => {
     it('GET / status:200 responds with an array of topic objects', () => request
       .get('/api/topics')
       .expect(200)
@@ -29,6 +29,22 @@ describe('/api', () => {
           description: 'Hi there boss!',
           slug: 'Sharoze',
         });
+      }));
+    it.only('POST / 422 given for keying the same slug (unprocessible)', () => request
+      .post('/api/topics')
+      .send({ description: 'Hi there boss!', slug: 'Sharoze' })
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.topics).to.eql({
+          description: 'Hi there boss!',
+          slug: 'Sharoze',
+        });
+      }));
+    it('GET / 405 given a method that is not allowed ', () => request
+      .delete('/api/topics')
+      .expect(405)
+      .then(({ body }) => {
+        expect(body.msg).to.equal('Method Not Allowed');
       }));
   });
   describe('articles', () => {
@@ -169,6 +185,20 @@ describe('/api', () => {
             'votes',
           );
         }));
+      it('GET / 404 given an ID that does not exist', () => request
+        .get('/api/articles/00000000000000111')
+        .expect(404)
+        .then(({ body }) => {
+          // console.log(body);
+          expect(body.message).to.equal('Route Does Not Exist');
+        }));
+      it('GET / 400 given an ID that does not exist', () => request
+        .get('/api/articles/tigerrrrrrrr')
+        .expect(400)
+        .then(({ body }) => {
+          // console.log(body);
+          expect(body.message).to.equal('Bad Request - ID should be an Integer');
+        }));
       it('GET / status:200 responds with an article object by article id with correct comment_count property', () => request
         .get('/api/articles/1')
         .expect(200)
@@ -192,6 +222,13 @@ describe('/api', () => {
         .then(({ body }) => {
           expect(body.article).to.be.an('object');
           expect(body.article.votes).to.equal(0);
+        }));
+      it('GET / 404 given an ID that does not exist', () => request
+        .patch('/api/articles/42')
+        .send({ inc_votes: -100 })
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.message).to.equal('Route Does Not Exist');
         }));
       it('DELETE / status:204 (No Content) deletes the article object with article_id', () => request
         .delete('/api/articles/8')
@@ -340,6 +377,12 @@ describe('/api', () => {
           avatar_url: 'https://avatars2.githubusercontent.com/u/24394918?s=400&v=4',
           name: 'paul',
         });
+      }));
+    it('GET / 405 given a method that is not allowed ', () => request
+      .delete('/api/users')
+      .expect(405)
+      .then(({ body }) => {
+        expect(body.msg).to.equal('Method Not Allowed');
       }));
   });
 });

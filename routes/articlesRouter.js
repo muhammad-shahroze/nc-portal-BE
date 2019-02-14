@@ -5,18 +5,21 @@ const {
 const {
   fetchCommentsByArticleId, postCommentByArticleId,
 } = require('../controllers/comments');
+const { handle405 } = require('../errors');
 
 apiRouter.route('/')
   .get(fetchArticles)
-  .post(postArticle);
+  .post(postArticle)
+  .all(handle405);
 
 apiRouter.route('/:article_id')
   .get(fetchArticleById)
   .patch(patchArticle)
-  .delete(deleteArticle);
+  .delete(deleteArticle)
+  .all(handle405);
 
 apiRouter.route('/:article_id/comments')
   .get(fetchCommentsByArticleId)
-  .post(postCommentByArticleId);
-
+  .post(postCommentByArticleId)
+  .all(handle405);
 module.exports = apiRouter;

@@ -35,8 +35,8 @@ exports.fetchArticleById = (req, res, next) => {
   const { article_id } = req.params;
   getArticleById(article_id)
     .then(([article]) => {
-      // next({msg: 'ID not found', code: 404})
-      res.status(200).send({ article });
+      if (article) return res.status(200).send({ article });
+      return Promise.reject({ status: 404, msg: 'Route Does Not Exist' });
     })
     .catch((err) => {
       next(err);
@@ -48,7 +48,8 @@ exports.patchArticle = (req, res, next) => {
   const { inc_votes } = req.body;
   patchArticleById(article_id, inc_votes)
     .then(([article]) => {
-      res.status(200).send({ article });
+      if (article) return res.status(200).send({ article });
+      return Promise.reject({ status: 404, msg: 'Route Does Not Exist' });
     })
     .catch((err) => {
       next(err);
@@ -58,8 +59,8 @@ exports.patchArticle = (req, res, next) => {
 exports.deleteArticle = (req, res, next) => {
   const { article_id } = req.params;
   deleteArticleById(article_id)
-    .then((mystery) => {
-      res.status(204).send({ mystery });
+    .then(() => {
+      res.status(204).send({});
     })
     .catch((err) => {
       next(err);
