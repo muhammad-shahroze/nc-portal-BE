@@ -12,7 +12,7 @@ describe('/api', () => {
 
   after(() => connection.destroy());
 
-  describe.only('topics', () => {
+  describe('topics', () => {
     it('GET / status:200 responds with an array of topic objects', () => request
       .get('/api/topics')
       .expect(200)
@@ -30,7 +30,7 @@ describe('/api', () => {
           slug: 'Sharoze',
         });
       }));
-    it.only('POST / 422 given for keying the same slug (unprocessible)', () => request
+    it('POST / 422 given for keying the same slug (unprocessible)', () => request
       .post('/api/topics')
       .send({ description: 'Hi there boss!', slug: 'Sharoze' })
       .expect(201)
@@ -189,14 +189,12 @@ describe('/api', () => {
         .get('/api/articles/00000000000000111')
         .expect(404)
         .then(({ body }) => {
-          // console.log(body);
           expect(body.message).to.equal('Route Does Not Exist');
         }));
       it('GET / 400 given an ID that does not exist', () => request
         .get('/api/articles/tigerrrrrrrr')
         .expect(400)
         .then(({ body }) => {
-          // console.log(body);
           expect(body.message).to.equal('Bad Request - ID should be an Integer');
         }));
       it('GET / status:200 responds with an article object by article id with correct comment_count property', () => request
