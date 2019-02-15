@@ -3,7 +3,7 @@ const topicsRouter = require('../routes/topicsRouter');
 const articlesRouter = require('../routes/articlesRouter');
 const commentsRouter = require('../routes/commentsRouter');
 const usersRouter = require('../routes/usersRouter');
-const endPoints = require('../endpoints.json');
+const { endPoints } = require('../endpoints');
 
 router.use('/topics', topicsRouter);
 
