@@ -13,6 +13,8 @@ router.use('/comments', commentsRouter);
 
 router.use('/users', usersRouter);
 
-// router.get('/api', endPoints);
+router.get('/api', (req, res) => {
+  res.status(200).send(endPoints);
+});
 
 module.exports = router;
