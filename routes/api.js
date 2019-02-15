@@ -13,7 +13,7 @@ router.use('/comments', commentsRouter);
 
 router.use('/users', usersRouter);
 
-router.get('/api', (req, res) => {
+router.get('/', (req, res) => {
   res.status(200).send(endPoints);
 });
 

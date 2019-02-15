@@ -12,7 +12,7 @@ describe('/api', () => {
 
   after(() => connection.destroy());
 
-  describe.only('topics', () => {
+  describe('topics', () => {
     it('GET / status:200 responds with an array of topic objects', () => request
       .get('/api/topics')
       .expect(200)
@@ -30,12 +30,12 @@ describe('/api', () => {
           slug: 'Sharoze',
         });
       }));
-    xit('POST / 422 given for keying existing slug (unprocessible)', () => request
+    it('POST / 422 given for keying existing slug (unprocessible)', () => request
       .post('/api/topics')
-      .send({ description: 'Hi there boss!', slug: 'cats' })
+      .send({ description: 'Hello Master!', slug: 'cats' })
       .expect(422)
       .then(({ body }) => {
-        expect(body.topic).to.equal('Unique Key Violation!. Request cannot be proccessed');
+        expect(body.message).to.equal('Unique Key Violation!. Request cannot be proccessed');
       }));
     it('GET / 405 given a method that is not allowed ', () => request
       .delete('/api/topics')

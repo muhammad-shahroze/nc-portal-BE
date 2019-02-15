@@ -25,7 +25,7 @@ exports.handle405 = (req, res) => {
 };
 
 exports.handle422 = (err, req, res, next) => {
-  console.log(err);
+  // console.log(err);
   const { code } = err;
   const errorCodes422 = {
     23503: 'Unique Key Violation!. Request cannot be proccessed',
