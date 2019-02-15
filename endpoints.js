@@ -11,6 +11,7 @@ exports.endPoints = {
             'POST /api/postTopic': 'Endpoint to post a single Topic',
           },
           'api/articles': {
+            'GET /api/articles': 'Endpoint to receive all the articles',
             'GET /api/articles/:article_id': 'Endpoint to receive an Article by its Article ID',
             'PATCH /api/articles/:article_id': 'Endpoint to update content in an Article using Article ID',
             'DELETE /api/articles/:article_id': 'Endpoint to delete an Article using Article ID',
