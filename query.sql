@@ -11,7 +11,7 @@
 -- WHERE articles.article_id = 1;
 
 SELECT *
-FROM users;
+FROM articles;
 
 -- UPDATE articles
 --   SET votes = votes + 1

@@ -25,7 +25,10 @@ exports.fetchArticles = (req, res, next) => {
 exports.postArticle = (req, res, next) => {
   // console.log(req.body);
   addArticle(req.body)
-    .then(([article]) => res.status(201).send({ article }))
+    .then(([article]) => {
+      if (article) return res.status(201).send({ article });
+      return Promise.reject({ status: 422, msg: 'Unique Key Violation!. Request cannot be proccessed' });
+    })
     .catch((err) => {
       next(err);
     });

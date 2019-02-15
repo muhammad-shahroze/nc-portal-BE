@@ -24,7 +24,10 @@ exports.postCommentByArticleId = (req, res, next) => {
   const { article_id } = req.params;
   const insertedComment = req.body;
   addCommentByArticleId({ article_id, ...insertedComment })
-    .then(([comment]) => res.status(201).send({ comment }))
+    .then(([comment]) => {
+      if (comment) return res.status(201).send({ comment });
+      return Promise.reject({ status: 422, msg: 'Unique Key Violation!. Request cannot be proccessed' });
+    })
     .catch((err) => {
       next(err);
     });

@@ -12,7 +12,7 @@ describe('/api', () => {
 
   after(() => connection.destroy());
 
-  describe('topics', () => {
+  describe.only('topics', () => {
     it('GET / status:200 responds with an array of topic objects', () => request
       .get('/api/topics')
       .expect(200)
@@ -25,20 +25,17 @@ describe('/api', () => {
       .send({ description: 'Hi there boss!', slug: 'Sharoze' })
       .expect(201)
       .then(({ body }) => {
-        expect(body.topics).to.eql({
+        expect(body.topic).to.eql({
           description: 'Hi there boss!',
           slug: 'Sharoze',
         });
       }));
-    it('POST / 422 given for keying the same slug (unprocessible)', () => request
+    xit('POST / 422 given for keying existing slug (unprocessible)', () => request
       .post('/api/topics')
-      .send({ description: 'Hi there boss!', slug: 'Sharoze' })
-      .expect(201)
+      .send({ description: 'Hi there boss!', slug: 'cats' })
+      .expect(422)
       .then(({ body }) => {
-        expect(body.topics).to.eql({
-          description: 'Hi there boss!',
-          slug: 'Sharoze',
-        });
+        expect(body.topic).to.equal('Unique Key Violation!. Request cannot be proccessed');
       }));
     it('GET / 405 given a method that is not allowed ', () => request
       .delete('/api/topics')
@@ -169,6 +166,15 @@ describe('/api', () => {
           'votes',
         );
       }));
+    it('POST / 422 unproccessable Identity username is not unique', () => request
+      .post('/api/articles')
+      .send({
+        title: 'Down with the shadows', body: 'Death is only the start', topic: 'cats', author: 'timMartin',
+      })
+      .expect(422)
+      .then(({ body }) => {
+        expect(body.message).to.equal('Unique Key Violation!. Request cannot be proccessed');
+      }));
     describe('/articles/:article_id', () => {
       it('GET / status:200 responds with an article object by article id', () => request
         .get('/api/articles/5')
@@ -191,8 +197,8 @@ describe('/api', () => {
         .then(({ body }) => {
           expect(body.message).to.equal('Route Does Not Exist');
         }));
-      it('GET / 400 given an ID that does not exist', () => request
-        .get('/api/articles/tigerrrrrrrr')
+      it('GET / 400 given an ID (Bad-Request) wrong format', () => request
+        .get('/api/articles/banana')
         .expect(400)
         .then(({ body }) => {
           expect(body.message).to.equal('Bad Request - ID should be an Integer');
@@ -312,6 +318,13 @@ describe('/api', () => {
             'created_at',
           );
         }));
+      it('POST / 422 unproccessable Identity username is not unique', () => request
+        .post('/api/articles/40/comments')
+        .send({ author: 'butter_bridge', body: 'Dream big and dare to fail' })
+        .expect(422)
+        .then(({ body }) => {
+          expect(body.message).to.equal('Unique Key Violation!. Request cannot be proccessed');
+        }));
       describe('comments/:comment_id', () => {
         it('PATCH / status:200 patches the comment object and increments', () => request
           .patch('/api/comments/2')
@@ -376,11 +389,30 @@ describe('/api', () => {
           name: 'paul',
         });
       }));
+    // it.only('GET / 400 given a username (Bad-Request) wrong format', () => request
+    //   .get('/api/users/15')
+    //   .expect(400)
+    //   .then(({ body }) => {
+    //     expect(body.message).to.equal('Bad Request - ID should be an String');
+    //   }));
+    it('GET / 404 given a username that does not exist', () => request
+      .get('/api/users/BillGates')
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.message).to.equal('Route Does Not Exist');
+      }));
     it('GET / 405 given a method that is not allowed ', () => request
       .delete('/api/users')
       .expect(405)
       .then(({ body }) => {
         expect(body.msg).to.equal('Method Not Allowed');
+      }));
+    it('POST / 422 unproccessable Identity username is not unique', () => request
+      .post('/api/users')
+      .send({ username: 'rogersop', avatar_url: 'https://cdn.britannica.com/47/188747-050-1D34E743.jpg', name: 'Bill Gates' })
+      .expect(422)
+      .then(({ body }) => {
+        expect(body.message).to.equal('Unique Key Violation!. Request cannot be proccessed');
       }));
   });
 });
