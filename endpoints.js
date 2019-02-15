@@ -3,7 +3,7 @@ exports.endPoints = {
     routes: {
       '/api': {
         'GET /api': {
-          description: 'servers a JSON object displaying all endpoints',
+          description: 'Servers a JSON object displaying all endpoints',
         },
         'api/topics': {
           'GET /api/fetchTopic': {
