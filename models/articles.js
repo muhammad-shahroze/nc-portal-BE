@@ -41,10 +41,10 @@ exports.addArticle = newArticle => connection
   .insert(newArticle).into('articles').returning('*');
 
 
-exports.patchArticleById = (article_id, inc_votes) => {
+exports.patchArticleById = (article_id, inc_votes = 0) => {
   const basePromise = connection('articles')
     .where('articles.article_id', article_id)
-    .increment('votes', +inc_votes)
+    .increment('votes', +inc_votes || 0)
     .returning('*');
 
   return basePromise;

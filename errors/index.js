@@ -4,6 +4,7 @@ exports.handle400 = (err, req, res, next) => {
   const errorCodes400 = {
     22003: 'Bad Request - Username should be an String',
     '22P02': 'Bad Request - ID should be an Integer',
+    23502: 'Bad Request - Description property missing!',
   };
   if (errorCodes400[code] || err.status === 400) {
     res.status(400).send({ message: errorCodes400[code] || err.msg });
@@ -37,7 +38,11 @@ exports.handle422 = (err, req, res, next) => {
 };
 
 exports.handle500 = (err, req, res, next) => {
-  if (err.status === 500) {
-    res.status(500).send({ message: 'Internal Server Error' });
+  const { code } = err;
+  const errorCodes500 = {
+    42703: 'Property does not Exist - Internal Server Error',
+  };
+  if (errorCodes500[code]) {
+    res.status(500).send({ message: errorCodes500[code] });
   }
 };

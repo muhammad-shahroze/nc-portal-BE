@@ -38,6 +38,7 @@ exports.patchComment = (req, res, next) => {
   const { inc_votes } = req.body;
   patchCommentById(comment_id, inc_votes)
     .then(([comment]) => {
+      if (typeof inc_votes !== 'number') return Promise.reject({ status: 400, msg: 'Bad Request - Invalid (inc-votes) Type' });
       res.status(200).send({ comment });
     })
     .catch((err) => {
@@ -49,7 +50,8 @@ exports.deleteComment = (req, res, next) => {
   const { comment_id } = req.params;
   deleteCommentById(comment_id)
     .then(() => {
-      res.status(204).send({});
+      res.status(204).send();
+      return Promise.reject({ status: 404, msg: 'Not Found - Comment Does Not Exist!' });
     })
     .catch((err) => {
       next(err);

@@ -1,4 +1,3 @@
-
 ;
 \c nc_knews_test;
 
@@ -9,9 +8,10 @@
 -- FROM comments
 --   LEFT JOIN articles ON comments.article_id = articles.article_id
 -- WHERE articles.article_id = 1;
-
+-- DELETE FROM articles 
+-- WHERE article_id = 5;
 SELECT *
-FROM articles;
+FROM comments;
 
 -- UPDATE articles
 --   SET votes = votes + 1

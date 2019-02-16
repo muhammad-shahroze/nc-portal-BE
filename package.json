@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha ./spec/*",
-    "query": "psql -f query.sql",
+    "query": "psql -f query.sql > output.txt",
     "lint": "eslint ./ --fix",
     "pre-commit": "npm t",
     "posttest": "npm run lint",
@@ -36,7 +36,6 @@
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
     "knex": "^0.15.2",
-    "moment": "^2.24.0",
     "pg": "^7.8.0"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
 # BE2-NC-Knews
 
-## Northcoders News API
+# Northcoders News API 
 
 ### Background
 

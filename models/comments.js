@@ -8,7 +8,7 @@ exports.getCommentsByArticleId = (article_id, sort_by, order = 'desc', limit = 1
     .from('comments')
     .leftJoin('articles', 'comments.article_id', 'articles.article_id')
     .where('articles.article_id', article_id)
-    .orderBy(sort_by || 'comments.comment_id', order)
+    .orderBy(sort_by || 'comments.created_at', order)
     .limit(limit)
     .offset(limit * (page - 1));
   return basePromise;
@@ -23,7 +23,7 @@ exports.addCommentByArticleId = newComment => connection
 exports.patchCommentById = (comment_id, inc_votes) => {
   const basePromise = connection('comments')
     .where('comments.comment_id', comment_id)
-    .increment('votes', +inc_votes)
+    .increment('votes', +inc_votes || 0)
     .returning('*');
 
   return basePromise;

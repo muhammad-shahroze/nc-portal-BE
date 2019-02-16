@@ -37,6 +37,13 @@ describe('/api', () => {
       .then(({ body }) => {
         expect(body.message).to.equal('Unique Key Violation!. Request cannot be proccessed');
       }));
+    it('POST / 400 given for missing description property)', () => request
+      .post('/api/topics')
+      .send({ slug: 'Godzilla' })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).to.equal('Bad Request - Description property missing!');
+      }));
     it('GET / 405 given a method that is not allowed ', () => request
       .delete('/api/topics')
       .expect(405)
@@ -79,6 +86,12 @@ describe('/api', () => {
       .expect(200)
       .then(({ body }) => {
         expect(body.articles[0].title).to.equal('Z');
+      }));
+    it('GET / status:200 responds with an array of topic objects', () => request
+      .get('/api/articles?sort_by=description')
+      .expect(500)
+      .then(({ body }) => {
+        expect(body.message).to.equal('Property does not Exist - Internal Server Error');
       }));
     it('GET / returns articles sorted by (DEFAULT) to Date', () => request
       .get('/api/articles')
@@ -175,6 +188,12 @@ describe('/api', () => {
       .then(({ body }) => {
         expect(body.message).to.equal('Unique Key Violation!. Request cannot be proccessed');
       }));
+    it('GET / 405 given a method that is not allowed ', () => request
+      .delete('/api/articles')
+      .expect(405)
+      .then(({ body }) => {
+        expect(body.msg).to.equal('Method Not Allowed');
+      }));
     describe('/articles/:article_id', () => {
       it('GET / status:200 responds with an article object by article id', () => request
         .get('/api/articles/5')
@@ -195,7 +214,7 @@ describe('/api', () => {
         .get('/api/articles/00000000000000111')
         .expect(404)
         .then(({ body }) => {
-          expect(body.message).to.equal('Route Does Not Exist');
+          expect(body.message).to.equal('Article Not Found');
         }));
       it('GET / 400 given an ID (Bad-Request) wrong format', () => request
         .get('/api/articles/banana')
@@ -227,16 +246,51 @@ describe('/api', () => {
           expect(body.article).to.be.an('object');
           expect(body.article.votes).to.equal(0);
         }));
-      it('GET / 404 given an ID that does not exist', () => request
-        .patch('/api/articles/42')
-        .send({ inc_votes: -100 })
-        .expect(404)
+      it.only('PATCH / status:200 no body responds with an unmodified article', () => request
+        .patch('/api/articles/1')
+        .send()
+        .expect(200)
         .then(({ body }) => {
-          expect(body.message).to.equal('Route Does Not Exist');
+          expect(body.article.votes).to.equal(100);
         }));
-      it('DELETE / status:204 (No Content) deletes the article object with article_id', () => request
+      it('GET / 404 given correct ID but invalid votes type', () => request
+        .patch('/api/articles/5')
+        .send({ inc_votes: 'ten' })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).to.equal('Bad Request - Invalid (inc-votes) Type');
+        }));
+      it('DELETE / status:204 (No Content) deletes the article object given valid article_id', () => request
         .delete('/api/articles/8')
         .expect(204));
+      xit('DELETE / status:400 given a non existent article_id', () => request
+        .delete('/api/articles/1000000')
+        .expect(404)
+        .then((res) => {
+          console.log(res);
+          // expect(res).to.equal('Not Found - Article Does Not Exist!');
+        }));
+      it('DELETE / status:400 given a non existent article_id', () => request
+        .delete('/api/articles/seventeen')
+        .expect(400));
+      it('GET / 405 given a method that is not allowed ', () => request
+        .put('/api/articles/4')
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).to.equal('Method Not Allowed');
+        }));
+      it('GET / status:200 url contains a non-existent (but potentially valid) article_id', () => request
+        .get('/api/articles/50')
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.message).to.equal('Article Not Found');
+        }));
+      it('GET / 405 given a method that is not allowed ', () => request
+        .put('/api/articles/4/comments')
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).to.equal('Method Not Allowed');
+        }));
     });
   });
   describe('comments', () => {
@@ -266,14 +320,19 @@ describe('/api', () => {
         .get('/api/articles/1/comments?order=asc')
         .expect(200)
         .then(({ body }) => {
-          // console.log(body);
-          expect(body.comments[0].comment_id).to.equal(2);
+          expect(body.comments[0].created_at).to.equal('2000-11-26T12:36:03.389Z');
         }));
-      it('GET / returns comments sorted by (DEFAULT) order desc', () => request
-        .get('/api/articles/5/comments')
+      it('GET / sorts in the data (DEFAULT order=desc) and (DEFAULT sort_by=created_at)', () => request
+        .get('/api/articles/1/comments')
         .expect(200)
         .then(({ body }) => {
-          expect(body.comments[0].comment_id).to.equal(15);
+          expect(body.comments[0].body).to.equal('The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.');
+        }));
+      it('GET / returns comments sorted by the date they were created_at descending', () => request
+        .get('/api/articles/1/comments?sort_by=comment_id')
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comments[0].body).to.equal('This morning, I showered for nine minutes.');
         }));
       it('GET / returns number of comments by (QUERY) limit', () => request
         .get('/api/articles/1/comments?limit=4')
@@ -292,7 +351,7 @@ describe('/api', () => {
         .expect(200)
         .then(({ body }) => {
           expect(body.comments).to.have.length(8);
-          expect(body.comments[5].body).to.equal('Superficially charming');
+          expect(body.comments[5].body).to.equal('Lobster pot');
         }));
       it('GET / returns number of comments chosen from query paginate by page = 2', () => request
         .get('/api/articles/1/comments?limit=4&page=2')
@@ -301,7 +360,7 @@ describe('/api', () => {
           expect(body.comments).to.have.length(4);
           expect(body.comments[2].body).to.equal('Delicious crackerbreads');
         }));
-      it('POST / status:201 responds with posted comment object', () => request
+      it('POST / status:201 responds with posted comment object when given a valid ID', () => request
         .post('/api/articles/5/comments')
         .send({
           author: 'butter_bridge', body: 'Dream big and dare to fail',
@@ -325,6 +384,18 @@ describe('/api', () => {
         .then(({ body }) => {
           expect(body.message).to.equal('Unique Key Violation!. Request cannot be proccessed');
         }));
+      xit('GET / status:200 url given a non-existent article_id', () => request
+        .get('/api/articles/20/comments')
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.message).to.equal('Article Not Found');
+        }));
+      it('GET / status:200 url contains an invalid article_id', () => request
+        .get('/api/articles/banana/comments')
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).to.equal('Bad Request - ID should be an Integer');
+        }));
       describe('comments/:comment_id', () => {
         it('PATCH / status:200 patches the comment object and increments', () => request
           .patch('/api/comments/2')
@@ -345,6 +416,47 @@ describe('/api', () => {
         it('DELETE / status:204 (No Content) deletes the comment object with comment_id', () => request
           .delete('/api/comments/8')
           .expect(204));
+        xit('PATCH / status:200 with no body responds with an unmodified comment', () => request
+          .patch('/api/comments/1')
+          .send()
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.comment.votes).to.equal(16);
+          }));
+        it('GET / 405 given a method that is not allowed ', () => request
+          .put('/api/comments/4')
+          .expect(405)
+          .then(({ body }) => {
+            expect(body.msg).to.equal('Method Not Allowed');
+          }));
+        it('PATCH / 400 given an ID (Bad-Request) wrong format used for comment_id', () => request
+          .patch('/api/articles/wonderful')
+          .send()
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.message).to.equal('Bad Request - ID should be an Integer');
+          }));
+        xit('PATCH / 404 non-existent comment_id is used', () => request
+          .patch('/api/articles/12000000')
+          .send()
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.message).to.equal('Bad Request - ID should be an Integer');
+          }));
+        it('PATCH / status:200 url non-existent comment_id is used', () => request
+          .patch('/api/articles/5')
+          .send({ inc_votes: 'twenty' })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.message).to.equal('Bad Request - Invalid (inc-votes) Type');
+          }));
+        xit('DELETE / status:400 given a non existent comment_id', () => request
+          .delete('/api/comments/20')
+          .expect(404)
+          .then((res) => {
+            console.log(res);
+            expect(res).to.equal('Not Found - Comment Does Not Exist!');
+          }));
       });
     });
   });
@@ -389,12 +501,6 @@ describe('/api', () => {
           name: 'paul',
         });
       }));
-    // it.only('GET / 400 given a username (Bad-Request) wrong format', () => request
-    //   .get('/api/users/15')
-    //   .expect(400)
-    //   .then(({ body }) => {
-    //     expect(body.message).to.equal('Bad Request - ID should be an String');
-    //   }));
     it('GET / 404 given a username that does not exist', () => request
       .get('/api/users/BillGates')
       .expect(404)
@@ -403,6 +509,12 @@ describe('/api', () => {
       }));
     it('GET / 405 given a method that is not allowed ', () => request
       .delete('/api/users')
+      .expect(405)
+      .then(({ body }) => {
+        expect(body.msg).to.equal('Method Not Allowed');
+      }));
+    it('GET / 405 given a method that is not allowed ', () => request
+      .delete('/api/users/rogersop')
       .expect(405)
       .then(({ body }) => {
         expect(body.msg).to.equal('Method Not Allowed');

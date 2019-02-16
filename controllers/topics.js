@@ -10,11 +10,10 @@ exports.fetchTopic = (req, res, next) => {
 };
 
 exports.postTopic = (req, res, next) => {
-  // console.log(req.body);
   addTopic(req.body)
     .then(([topic]) => {
       if (topic) return res.status(201).send({ topic });
-      return Promise.reject({ status: 422, msg: 'Unique Key Violation!. Request cannot be proccessed' });
+      return Promise.reject({ status: 400, msg: 'Bad Request - - Description property missing!' });
     })
     .catch((err) => {
       next(err);
