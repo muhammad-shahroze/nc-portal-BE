@@ -4,7 +4,6 @@ const {
 } = require('../models/articles');
 
 exports.fetchArticles = (req, res, next) => {
-  // destructuring of req.query
   const {
     author, topic, sort_by, order, limit, page,
   } = req.query;
@@ -12,7 +11,6 @@ exports.fetchArticles = (req, res, next) => {
     getArticles(author, topic, sort_by, order, limit, page),
     getTotalArticlesCount()])
     .then(([articles, [{ total_count }]]) => {
-      // console.log(total_count);
       res.status(200).send({
         articles, total_count,
       });
@@ -23,7 +21,6 @@ exports.fetchArticles = (req, res, next) => {
 };
 
 exports.postArticle = (req, res, next) => {
-  // console.log(req.body);
   addArticle(req.body)
     .then(([article]) => {
       if (article) return res.status(201).send({ article });
@@ -51,8 +48,7 @@ exports.patchArticle = (req, res, next) => {
   const { inc_votes } = req.body;
   patchArticleById(article_id, inc_votes)
     .then(([article]) => {
-      console.log(article);
-      if (typeof inc_votes !== 'number') return Promise.reject({ status: 400, msg: 'Bad Request - Invalid (inc-votes) Type' });
+      if (typeof inc_votes !== 'number' && inc_votes !== undefined) return Promise.reject({ status: 400, msg: 'Bad Request - Invalid (inc-votes) Type' });
       res.status(200).send({ article });
     })
     .catch((err) => {
@@ -63,9 +59,9 @@ exports.patchArticle = (req, res, next) => {
 exports.deleteArticle = (req, res, next) => {
   const { article_id } = req.params;
   deleteArticleById(article_id)
-    .then(() => {
+    .then((article) => {
+      if (article === 0) return Promise.reject({ status: 404, msg: 'Not Found - Article Does Not Exist!' });
       res.status(204).send();
-      // return Promise.reject({ status: 404, msg: 'Not Found - Article Does Not Exist!' });
     })
     .catch((err) => {
       next(err);

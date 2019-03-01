@@ -41,7 +41,7 @@ exports.addArticle = newArticle => connection
   .insert(newArticle).into('articles').returning('*');
 
 
-exports.patchArticleById = (article_id, inc_votes = 0) => {
+exports.patchArticleById = (article_id, inc_votes) => {
   const basePromise = connection('articles')
     .where('articles.article_id', article_id)
     .increment('votes', +inc_votes || 0)

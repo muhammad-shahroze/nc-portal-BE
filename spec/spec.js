@@ -30,25 +30,25 @@ describe('/api', () => {
           slug: 'Sharoze',
         });
       }));
-    it('POST / 422 given for keying existing slug (unprocessible)', () => request
-      .post('/api/topics')
-      .send({ description: 'Hello Master!', slug: 'cats' })
-      .expect(422)
-      .then(({ body }) => {
-        expect(body.message).to.equal('Unique Key Violation!. Request cannot be proccessed');
-      }));
     it('POST / 400 given for missing description property)', () => request
       .post('/api/topics')
       .send({ slug: 'Godzilla' })
       .expect(400)
       .then(({ body }) => {
-        expect(body.message).to.equal('Bad Request - Description property missing!');
+        expect(body.message).to.equal('Bad Request - Invalid Property/Property Missing!');
       }));
     it('GET / 405 given a method that is not allowed ', () => request
       .delete('/api/topics')
       .expect(405)
       .then(({ body }) => {
         expect(body.msg).to.equal('Method Not Allowed');
+      }));
+    it('POST / 422 given for keying existing slug (unprocessible)', () => request
+      .post('/api/topics')
+      .send({ description: 'Hello Master!', slug: 'cats' })
+      .expect(422)
+      .then(({ body }) => {
+        expect(body.message).to.equal('Unique Key Violation!. Request cannot be proccessed');
       }));
   });
   describe('articles', () => {
@@ -86,12 +86,6 @@ describe('/api', () => {
       .expect(200)
       .then(({ body }) => {
         expect(body.articles[0].title).to.equal('Z');
-      }));
-    it('GET / status:200 responds with an array of topic objects', () => request
-      .get('/api/articles?sort_by=description')
-      .expect(500)
-      .then(({ body }) => {
-        expect(body.message).to.equal('Property does not Exist - Internal Server Error');
       }));
     it('GET / returns articles sorted by (DEFAULT) to Date', () => request
       .get('/api/articles')
@@ -179,6 +173,12 @@ describe('/api', () => {
           'votes',
         );
       }));
+    it('GET / 405 given a method that is not allowed ', () => request
+      .delete('/api/articles')
+      .expect(405)
+      .then(({ body }) => {
+        expect(body.msg).to.equal('Method Not Allowed');
+      }));
     it('POST / 422 unproccessable Identity username is not unique', () => request
       .post('/api/articles')
       .send({
@@ -188,11 +188,11 @@ describe('/api', () => {
       .then(({ body }) => {
         expect(body.message).to.equal('Unique Key Violation!. Request cannot be proccessed');
       }));
-    it('GET / 405 given a method that is not allowed ', () => request
-      .delete('/api/articles')
-      .expect(405)
+    it('GET / status:200 responds with an array of topic objects', () => request
+      .get('/api/articles?sort_by=description')
+      .expect(500)
       .then(({ body }) => {
-        expect(body.msg).to.equal('Method Not Allowed');
+        expect(body.message).to.equal('Property does not Exist - Internal Server Error');
       }));
     describe('/articles/:article_id', () => {
       it('GET / status:200 responds with an article object by article id', () => request
@@ -209,18 +209,6 @@ describe('/api', () => {
             'created_at',
             'votes',
           );
-        }));
-      it('GET / 404 given an ID that does not exist', () => request
-        .get('/api/articles/00000000000000111')
-        .expect(404)
-        .then(({ body }) => {
-          expect(body.message).to.equal('Article Not Found');
-        }));
-      it('GET / 400 given an ID (Bad-Request) wrong format', () => request
-        .get('/api/articles/banana')
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.message).to.equal('Bad Request - ID should be an Integer');
         }));
       it('GET / status:200 responds with an article object by article id with correct comment_count property', () => request
         .get('/api/articles/1')
@@ -246,13 +234,17 @@ describe('/api', () => {
           expect(body.article).to.be.an('object');
           expect(body.article.votes).to.equal(0);
         }));
-      it.only('PATCH / status:200 no body responds with an unmodified article', () => request
+      it('PATCH / status:200 no body responds with an unmodified article', () => request
         .patch('/api/articles/1')
         .send()
         .expect(200)
         .then(({ body }) => {
+          expect(body.article).to.be.an('object');
           expect(body.article.votes).to.equal(100);
         }));
+      it('DELETE / status:204 (No Content) deletes the article object given valid article_id', () => request
+        .delete('/api/articles/8')
+        .expect(204));
       it('GET / 404 given correct ID but invalid votes type', () => request
         .patch('/api/articles/5')
         .send({ inc_votes: 'ten' })
@@ -260,24 +252,33 @@ describe('/api', () => {
         .then(({ body }) => {
           expect(body.message).to.equal('Bad Request - Invalid (inc-votes) Type');
         }));
-      it('DELETE / status:204 (No Content) deletes the article object given valid article_id', () => request
-        .delete('/api/articles/8')
-        .expect(204));
-      xit('DELETE / status:400 given a non existent article_id', () => request
-        .delete('/api/articles/1000000')
-        .expect(404)
-        .then((res) => {
-          console.log(res);
-          // expect(res).to.equal('Not Found - Article Does Not Exist!');
+      it('GET / 400 given an ID (Bad-Request) wrong format', () => request
+        .get('/api/articles/banana')
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).to.equal('Bad Request - ID should be an Integer');
+        }));
+      it('PATCH / 400 given an ID (Bad-Request) wrong format used for comment_id', () => request
+        .patch('/api/articles/wonderful')
+        .send()
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).to.equal('Bad Request - ID should be an Integer');
         }));
       it('DELETE / status:400 given a non existent article_id', () => request
         .delete('/api/articles/seventeen')
         .expect(400));
-      it('GET / 405 given a method that is not allowed ', () => request
-        .put('/api/articles/4')
-        .expect(405)
+      it('DELETE / status:404 given a non existent article_id', () => request
+        .delete('/api/articles/99999')
+        .expect(404)
+        .then((res) => {
+          expect(res.body.message).to.equal('Not Found - Article Does Not Exist!');
+        }));
+      it('GET / 404 given an ID that does not exist', () => request
+        .get('/api/articles/00000000000000111')
+        .expect(404)
         .then(({ body }) => {
-          expect(body.msg).to.equal('Method Not Allowed');
+          expect(body.message).to.equal('Article Not Found');
         }));
       it('GET / status:200 url contains a non-existent (but potentially valid) article_id', () => request
         .get('/api/articles/50')
@@ -286,7 +287,7 @@ describe('/api', () => {
           expect(body.message).to.equal('Article Not Found');
         }));
       it('GET / 405 given a method that is not allowed ', () => request
-        .put('/api/articles/4/comments')
+        .put('/api/articles/4')
         .expect(405)
         .then(({ body }) => {
           expect(body.msg).to.equal('Method Not Allowed');
@@ -377,6 +378,33 @@ describe('/api', () => {
             'created_at',
           );
         }));
+      it('GET / status:400 url contains an invalid article_id', () => request
+        .get('/api/articles/banana/comments')
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).to.equal('Bad Request - ID should be an Integer');
+        }));
+      it('POST / status:400 given an invalid body referencing a non-existent column', () => request
+        .post('/api/articles/5/comments')
+        .send({
+          author: 'butter_bridge', comment_id: 125,
+        })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).to.equal('Bad Request - Invalid Property/Property Missing!');
+        }));
+      it('GET / status:200 given a non-existent article_id', () => request
+        .get('/api/articles/1000/comments')
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.message).to.equal('Bad Request - Article Not Found');
+        }));
+      it('GET / 405 given a method that is not allowed ', () => request
+        .put('/api/articles/4/comments')
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).to.equal('Method Not Allowed');
+        }));
       it('POST / 422 unproccessable Identity username is not unique', () => request
         .post('/api/articles/40/comments')
         .send({ author: 'butter_bridge', body: 'Dream big and dare to fail' })
@@ -384,17 +412,12 @@ describe('/api', () => {
         .then(({ body }) => {
           expect(body.message).to.equal('Unique Key Violation!. Request cannot be proccessed');
         }));
-      xit('GET / status:200 url given a non-existent article_id', () => request
-        .get('/api/articles/20/comments')
-        .expect(404)
+      it('POST / 422 given a non existent username', () => request
+        .post('/api/articles/4/comments')
+        .send({ author: 'ridge_racer', body: 'Dream big and dare to fail' })
+        .expect(422)
         .then(({ body }) => {
-          expect(body.message).to.equal('Article Not Found');
-        }));
-      it('GET / status:200 url contains an invalid article_id', () => request
-        .get('/api/articles/banana/comments')
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.message).to.equal('Bad Request - ID should be an Integer');
+          expect(body.message).to.equal('Unique Key Violation!. Request cannot be proccessed');
         }));
       describe('comments/:comment_id', () => {
         it('PATCH / status:200 patches the comment object and increments', () => request
@@ -416,46 +439,38 @@ describe('/api', () => {
         it('DELETE / status:204 (No Content) deletes the comment object with comment_id', () => request
           .delete('/api/comments/8')
           .expect(204));
-        xit('PATCH / status:200 with no body responds with an unmodified comment', () => request
+        it('PATCH / status:400 given body with invalid inc-votes responds with ', () => request
           .patch('/api/comments/1')
-          .send()
+          .send({ inc_votes: 'twenty' })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.message).to.equal('Bad Request - Invalid (inc-votes) Type');
+          }));
+        it('PATCH / status:200 with no body responds with an unmodified comment', () => request
+          .patch('/api/comments/1')
+          .send({})
           .expect(200)
           .then(({ body }) => {
             expect(body.comment.votes).to.equal(16);
+          }));
+        it('PATCH / 404 non-existent comment_id is used', () => request
+          .patch('/api/comments/23456')
+          .send({ inc_votes: 5 })
+          .expect(404)
+          .then((res) => {
+            expect(res.body.message).to.equal('Not Found - Comment Does Not Exist!');
+          }));
+        it('DELETE / status:400 given a non existent comment_id', () => request
+          .delete('/api/comments/200000')
+          .expect(404)
+          .then((res) => {
+            expect(res.body.message).to.equal('Not Found - Comment Does Not Exist!');
           }));
         it('GET / 405 given a method that is not allowed ', () => request
           .put('/api/comments/4')
           .expect(405)
           .then(({ body }) => {
             expect(body.msg).to.equal('Method Not Allowed');
-          }));
-        it('PATCH / 400 given an ID (Bad-Request) wrong format used for comment_id', () => request
-          .patch('/api/articles/wonderful')
-          .send()
-          .expect(400)
-          .then(({ body }) => {
-            expect(body.message).to.equal('Bad Request - ID should be an Integer');
-          }));
-        xit('PATCH / 404 non-existent comment_id is used', () => request
-          .patch('/api/articles/12000000')
-          .send()
-          .expect(404)
-          .then(({ body }) => {
-            expect(body.message).to.equal('Bad Request - ID should be an Integer');
-          }));
-        it('PATCH / status:200 url non-existent comment_id is used', () => request
-          .patch('/api/articles/5')
-          .send({ inc_votes: 'twenty' })
-          .expect(400)
-          .then(({ body }) => {
-            expect(body.message).to.equal('Bad Request - Invalid (inc-votes) Type');
-          }));
-        xit('DELETE / status:400 given a non existent comment_id', () => request
-          .delete('/api/comments/20')
-          .expect(404)
-          .then((res) => {
-            console.log(res);
-            expect(res).to.equal('Not Found - Comment Does Not Exist!');
           }));
       });
     });

@@ -1,69 +1,75 @@
-# Northcoders NC-Knews API
+# NC News
 
-This API equips the user with the ability to send and receive request for information on news topics, users, articles and comments from the database. The user may enter a `correctly formatted` endpoint 
+This is an API I have built to accompany my front end design for NC News. It includes articles, topics, comments and users end-points, with convenient user friendly functionality. You can find the most recent version of the API deployed over on [Heroku](https://afternoon-beyond-70751.herokuapp.com/)
 
-Getting Started
+## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
-Prerequisites
 
-What things you need to install the software and how to install them
+### Prequisites
 
-Give examples
+To only thing you will need to install is the most recent version of PostgreSQL.
 
-Installing
+### Installing
 
-A step by step series of examples that tell you how to get a development env running
+First of all, you need to fork and clone the repository from Github.
 
-Say what the step will be
+Then you will need to install the necessary dependencies by typing the following command in your terminal.
 
-Give the example
+```js
+npm install```
 
-And repeat
+Then you will need to create a knexfile.js to access the database.
 
-until finished
+```js
+knex.js;```
 
-End with an example of getting some data out of the system or using it for a little demo
-Running the tests
+Once you have entered the command it should create a knexfile.js, make sure it looks something like this:
 
-Explain how to run the automated tests for this system
-Break down into end to end tests
+```js
+module.exports = {
+  development: {
+    client: 'pg',
+    connection: {
+      database: 'nc_news',
+      user: 'Username (Linux only)',
+      password: 'Password (Linux only)'
+    },
+    migrations: {
+      directory: './db/migrations'
+    },
+    seeds: {
+      directory: './db/seeds'
+    }
+  }
+};```
 
-Explain what these tests test and why
+## Testing
 
-Give an example
+I tested this API with mocha and chai, you can run the tests by typing `npm test`. The tests are built to drop and re-create the database before each one runs, this ensures no data is changed, potentionally causing following tests to fail.
 
-And coding style tests
+The following snippet is an example of a test.
 
-Explain what these tests test and why
+```js
+it('GET/ status 200/ responds with an array of topic objects', () => {
+      return request
+        .get('/api/topics')
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.topics).to.be.an('array');
+          expect(body.topics[0]).to.contain.keys('slug', 'description');
+        });```
 
-Give an example
+As you can see, the method, expected response status and description of each test is within the title. Below that you can see the request, the path this particular request is running on, as well as the tests themselves. In this case it's seeing whether the topic objects are within an array and looking within the first instance to check the keys match with that of a topic object.
 
-Deployment
+## Built with
 
-Add additional notes about how to deploy this on a live system
-Built With
+- Knex
+- Express
+- Supertest
+- Mocha
 
-    Dropwizard - The web framework used
-    Maven - Dependency Management
-    ROME - Used to generate RSS Feeds
+## Acknowledgments
 
-Contributing
-
-Please read CONTRIBUTING.md for details on our code of conduct, and the process for submitting pull requests to us.
-Versioning
-
-We use SemVer for versioning. For the versions available, see the tags on this repository.
-Authors
-
-    Billie Thompson - Initial work - PurpleBooth
-
-See also the list of contributors who participated in this project.
-License
-
-This project is licensed under the MIT License - see the LICENSE.md file for details
-Acknowledgments
-
-    Hat tip to anyone whose code was used
-    Inspiration
-    etc
+- Northcoders
+- Knexjs.org

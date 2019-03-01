@@ -9,8 +9,7 @@ exports.fetchCommentsByArticleId = (req, res, next) => {
   const { article_id } = req.params;
   getCommentsByArticleId(article_id, sort_by, order, limit, page)
     .then((comments) => {
-      // console.log(comments, '<<<<');
-      // next({msg: 'ID not found', code: 404})
+      if (comments.length === 0) return Promise.reject({ status: 404, msg: 'Bad Request - Article Not Found' });
       res.status(200).send({
         comments, sort_by, order, limit, page,
       });
@@ -36,22 +35,25 @@ exports.postCommentByArticleId = (req, res, next) => {
 exports.patchComment = (req, res, next) => {
   const { comment_id } = req.params;
   const { inc_votes } = req.body;
-  patchCommentById(comment_id, inc_votes)
-    .then(([comment]) => {
-      if (typeof inc_votes !== 'number') return Promise.reject({ status: 400, msg: 'Bad Request - Invalid (inc-votes) Type' });
-      res.status(200).send({ comment });
-    })
-    .catch((err) => {
-      next(err);
-    });
+  if (typeof inc_votes !== 'undefined' && typeof inc_votes !== 'number') next({ status: 400, msg: 'Bad Request - Invalid (inc-votes) Type' });
+  else {
+    patchCommentById(comment_id, inc_votes)
+      .then(([comment]) => {
+        if (comment === undefined) return Promise.reject({ status: 404, msg: 'Not Found - Comment Does Not Exist!' });
+        res.status(200).send({ comment });
+      })
+      .catch((err) => {
+        next(err);
+      });
+  }
 };
 
 exports.deleteComment = (req, res, next) => {
   const { comment_id } = req.params;
   deleteCommentById(comment_id)
-    .then(() => {
+    .then((comment) => {
+      if (comment === 0) return Promise.reject({ status: 404, msg: 'Not Found - Comment Does Not Exist!' });
       res.status(204).send();
-      return Promise.reject({ status: 404, msg: 'Not Found - Comment Does Not Exist!' });
     })
     .catch((err) => {
       next(err);

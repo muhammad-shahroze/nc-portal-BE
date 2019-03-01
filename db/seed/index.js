@@ -9,7 +9,6 @@ exports.seed = (connection, Promise) => connection.migrate
   .then(() => connection('topics').insert(topicData).returning('*'))
   .then(topicRows => Promise.all([topicRows, connection.insert(userData).into('users').returning('*')]))
   .then(([topicRows]) => {
-    // console.log(topicRows);
     const formattedArticles = formatArticles(articleData, topicRows);
     return connection('articles').insert(formattedArticles).returning('*');
   })

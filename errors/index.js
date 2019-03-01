@@ -1,10 +1,9 @@
 exports.handle400 = (err, req, res, next) => {
-  // console.log(err);
   const { code } = err;
   const errorCodes400 = {
     22003: 'Bad Request - Username should be an String',
     '22P02': 'Bad Request - ID should be an Integer',
-    23502: 'Bad Request - Description property missing!',
+    23502: 'Bad Request - Invalid Property/Property Missing!',
   };
   if (errorCodes400[code] || err.status === 400) {
     res.status(400).send({ message: errorCodes400[code] || err.msg });
@@ -12,7 +11,6 @@ exports.handle400 = (err, req, res, next) => {
 };
 
 exports.handle404 = (err, req, res, next) => {
-  // console.log(err);
   const { code } = err;
   const errorCodes404 = {
   };
@@ -26,7 +24,6 @@ exports.handle405 = (req, res) => {
 };
 
 exports.handle422 = (err, req, res, next) => {
-  // console.log(err);
   const { code } = err;
   const errorCodes422 = {
     23503: 'Unique Key Violation!. Request cannot be proccessed',

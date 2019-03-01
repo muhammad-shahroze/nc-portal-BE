@@ -1,7 +1,6 @@
 const connection = require('../db/connection');
 
 exports.getCommentsByArticleId = (article_id, sort_by, order = 'desc', limit = 10, page = 1) => {
-  // console.log(article_id);
   const basePromise = connection
     .column('comments.comment_id', 'comments.votes', 'comments.created_at', 'comments.author', 'comments.body')
     .select()
