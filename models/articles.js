@@ -2,11 +2,12 @@ const connection = require('../db/connection');
 
 exports.getArticles = (author, topic, sort_by = 'created_at', order = 'desc', limit = 10, page = 1) => {
   const basePromise = connection
-    .column('articles.article_id', 'title', 'articles.topic', 'articles.author', 'articles.votes', 'articles.body', 'articles.created_at')
+    .column('articles.article_id', 'title', 'articles.topic', 'articles.author', 'articles.votes', 'articles.body', 'articles.created_at', 'users.avatar_url')
     .select()
     .from('articles')
     .count('comments.article_id AS comment_count')
     .leftJoin('comments', 'articles.article_id', 'comments.article_id')
+    .leftJoin('users', 'articles.author', 'users.username')
     .groupBy('articles.article_id')
     .orderBy(sort_by, order)
     .limit(limit)

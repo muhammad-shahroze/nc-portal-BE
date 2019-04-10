@@ -49,7 +49,7 @@ exports.patchArticle = (req, res, next) => {
   patchArticleById(article_id, inc_votes)
     .then(([article]) => {
       if (typeof inc_votes !== 'number' && inc_votes !== undefined) return Promise.reject({ status: 400, msg: 'Bad Request - Invalid (inc-votes) Type' });
-      res.status(200).send({ article });
+      return res.status(200).send({ article });
     })
     .catch((err) => {
       next(err);
@@ -61,7 +61,7 @@ exports.deleteArticle = (req, res, next) => {
   deleteArticleById(article_id)
     .then((article) => {
       if (article === 0) return Promise.reject({ status: 404, msg: 'Not Found - Article Does Not Exist!' });
-      res.status(204).send();
+      return res.status(204).send();
     })
     .catch((err) => {
       next(err);

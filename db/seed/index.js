@@ -1,6 +1,6 @@
 const {
   topicData, userData, articleData, commentData,
-} = require('../data/test-data');
+} = require('../data/index');
 const { formatArticles, formatComments } = require('../utils');
 
 exports.seed = (connection, Promise) => connection.migrate

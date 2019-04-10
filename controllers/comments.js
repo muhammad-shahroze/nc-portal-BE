@@ -10,7 +10,7 @@ exports.fetchCommentsByArticleId = (req, res, next) => {
   getCommentsByArticleId(article_id, sort_by, order, limit, page)
     .then((comments) => {
       if (comments.length === 0) return Promise.reject({ status: 404, msg: 'Bad Request - Article Not Found' });
-      res.status(200).send({
+      return res.status(200).send({
         comments, sort_by, order, limit, page,
       });
     })
@@ -40,7 +40,7 @@ exports.patchComment = (req, res, next) => {
     patchCommentById(comment_id, inc_votes)
       .then(([comment]) => {
         if (comment === undefined) return Promise.reject({ status: 404, msg: 'Not Found - Comment Does Not Exist!' });
-        res.status(200).send({ comment });
+        return res.status(200).send({ comment });
       })
       .catch((err) => {
         next(err);
@@ -53,7 +53,7 @@ exports.deleteComment = (req, res, next) => {
   deleteCommentById(comment_id)
     .then((comment) => {
       if (comment === 0) return Promise.reject({ status: 404, msg: 'Not Found - Comment Does Not Exist!' });
-      res.status(204).send();
+      return res.status(204).send();
     })
     .catch((err) => {
       next(err);
